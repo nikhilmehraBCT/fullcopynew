@@ -1,3 +1,0 @@
-<aura:event type="COMPONENT" description="to pass the value of Bill Type">
-    <aura:attribute name="billType" type="String"/>
-</aura:event>

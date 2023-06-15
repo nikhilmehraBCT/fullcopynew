@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
 <<<<<<< HEAD
+<<<<<<< HEAD
    <types>
 =======
      <types>
 >>>>>>> sfdevtest2/master
+=======
+     <types>
+>>>>>>> sfdevtest/master
         <members>hs_Product_Offer_User_Settings.Lashawn_Beard</members>
         <name>CustomMetadata</name>
     </types>
