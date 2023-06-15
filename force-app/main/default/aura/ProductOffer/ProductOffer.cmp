@@ -1,0 +1,587 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId,lightning:actionOverride" access="global" controller="ProductOfferController" >
+    <aura:attribute name="productOfferRecord" type="Product_Offer__c" default="{'ProductCatalog_ID__c':'','Name':'','Marketing_Product_Name__c':'','TC__c':'','Underwriter_Rate_Code__c':'','BillOffset__c':'','WaitOffset__c':'','StartOffset__c':'','Term__c':'','Frequency__c':'','Description__c':'','BillType__c':'','DiscountEligible__c':false,'DiscountCount__c':false,'IsBundle__c':false,'BundlePrice__c':'','Comment__c':'','Setup_Complete__c':false, 'Full_Term__c':false,'Configuration_Type__c':'--None--','Do_not_Use__c':false}" />
+    <aura:attribute name="priceEntryListMain" type="Price_Entry__c[]" />
+    <aura:attribute name="priceEntryList" type="Price_Entry__c[]" />
+    <aura:attribute name="ShowModule" type="boolean" default="false"/>
+    <aura:attribute name="isModalOpen" type="boolean" default="true"/>
+    <aura:attribute name="issearching" type="boolean" default="false"/>
+    <aura:attribute name="isModalProductCatalogOpen" type="boolean" default="false" />
+    <aura:attribute name="recordId" type="String" default=""/>
+    <aura:attribute name="contractDefaultValues" type="Contract_Default_Values__mdt"  default="{'BillOffset__c':0,'WaitOffset__c':0,'StartOffset__c':0,'Term__c':0,'Frequency__c':0}"/>
+    <aura:attribute name="isView" type="boolean" default="false"/>
+    <aura:attribute name="channelFilter" type="String" default="" />
+    <aura:attribute name="channelFilterPlaceholder" type="String" default="Select Filter from List" />
+    <aura:attribute name="selectedRecordId" type="String" default=""/>
+    <aura:attribute name="isSpinnerShow" type="Boolean" default="true"/>
+    <aura:attribute name="userInfo" type="User" />
+    <aura:attribute name="randomString" type="String" default=""/>
+    <aura:attribute name="channelValue" type="String" default=""/>
+    <aura:attribute name="isFromNew" type="Boolean" default="false"/>
+    <aura:attribute name="isDuplicate" type="Boolean" default="false"/>
+    <aura:attribute name="duplicates" type="List" default="[]"/>
+    <aura:attribute name="changeToCode" type="String" default=""/>
+    <aura:attribute name="filteredData" type="List"/>
+    <aura:attribute name="allPriceEntiresData" type="List"/>
+     <aura:attribute name="channelData" type="List"/>
+    <aura:attribute name="tableData" type="List" />
+    <aura:attribute name="columns" type="List"/>
+   <aura:attribute name="Spinner" type="boolean" default="true"/>
+    <aura:attribute name="sortBy" type="String"/>
+    <aura:attribute name="sortDirection" type="String"/>
+    <aura:attribute name="updateRecordList" type="List"/>
+    <aura:attribute name="viewAllBool" type="Boolean" default="true"/>
+    <aura:attribute name="pageSizeOptions" type="Integer[]" default="5,10,15,20,25,50,100" />
+    <aura:attribute name="pageSize" type="Integer" default="100" />
+    <aura:attribute name="currentPageNumber" type="Integer" default="1" />
+    <aura:attribute name="totalPages" type="Integer" default="1" />
+     <aura:attribute name="totalRecords" type="Integer" />
+    <aura:attribute name="sDate" type="date"  />
+    <aura:attribute name="eDate" type="date"  />
+    <aura:attribute name="intialLoad" type="Boolean"/>
+    <aura:attribute name="donotuseFlag" type="Boolean" default ="false"/>
+    <aura:attribute name="productcatalog" type="Product_Catalog__c"/>
+    <aura:attribute name="productnameid" type="String"/>
+    <aura:attribute name="isshowAlertModel" type="Boolean" default ="false" />
+	<aura:attribute name="uservalidationFlag" type="Boolean" default ="true"/> 
+    <aura:attribute name="isRenew" type="Boolean" default ="false"/> 
+    <aura:attribute name="isBillTypeBoth" type="Boolean" default ="true"/>
+    
+    <aura:attribute name="filterOptions" type="List" default="[
+        {'label': 'All', 'value': 'All'},
+        {'label': 'Phone', 'value': 'Phone'},
+        {'label': 'Web', 'value': 'Web'},
+        ]"/>
+   
+    <aura:attribute name="record" type="Object"/>
+    <aura:attribute name="simpleRecord" type="Object"/>
+    <aura:attribute name="recordError" type="String"/>
+    <aura:handler name="setBillTypeName" event="c:setBillType" action="{!c.setBillType}"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <lightning:card>
+        <aura:if isTrue="{!v.isSpinnerShow}">
+            <div class="exampleHolder">
+                <lightning:spinner variant="brand" size="large" />
+            </div>
+        </aura:if>
+        <aura:if isTrue="{!v.isView}">
+            <div>
+                <lightning:recordEditForm recordId="{!v.recordId}" objectApiName="Product_Offer__c">
+                    <div class="slds-grid" style="padding-bottom:30px;">
+                        <div class="slds-col slds-size_1-of-2">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label">Product Catalog Name</label>
+                                <lightning:outputField  variant="label-hidden" fieldName="ProductCatalog_ID__c" />
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label">Product Offer Name</label>
+                                <div class="slds-form-element__control">
+                                    <lightning:outputField  variant="label-hidden" fieldName="Name" />
+                                </div>
+                            </div>
+							<div class="slds-form-element">
+                                    <label class="slds-form-element__label">Marketing Product Name</label>
+                                    <div class="slds-form-element__control">
+                                        <lightning:outputField  variant="label-hidden" fieldName="Marketing_Product_Name__c" />
+                                    </div>
+                                </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label">Product Offer Code</label>
+                                <div class="slds-form-element__control">
+                                    <lightning:outputField variant="label-hidden" fieldName="ProductOfferCode__c"/>
+                                </div>
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label">Partner name</label>
+                                <div class="slds-form-element__control">
+                                    <lightning:outputField variant="label-hidden" fieldName="Partner_Name__c"/>
+                                </div>
+                                 
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label">Partner Code</label>
+                                <div class="slds-form-element__control">
+                                    <lightning:outputField variant="label-hidden" fieldName="Partner_Code__c"/>
+                                </div>
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label">Parent partner code</label>
+                                <div class="slds-form-element__control">
+                                    <lightning:outputField variant="label-hidden" fieldName="Parent_Partner_Code__c"/>
+                                </div>
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label">T&amp;C</label>
+                                <div class="slds-form-element__control">
+                                    <lightning:outputField variant="label-hidden" fieldName="TC__c" />
+                                </div>
+                            </div>
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label">Underwriter Rate Code</label>
+                                <div class="slds-form-element__control">
+                                    <lightning:outputField variant="label-hidden" fieldName="Underwriter_Rate_Code__c" />
+                                </div>
+                            </div>
+                            <div class="slds-form-element" style="padding-bottom: 15px">
+                                <label class="slds-form-element__label">Configuration Type</label>
+                                <div class="slds-form-element__control">
+                                    <lightning:outputField variant="label-hidden" fieldName="Configuration_Type__c"/>
+                                </div>
+                            </div>
+                            <div class="slds-form-element" style="padding-top: 5px">
+                                <lightning:outputField variant="label-inline" class="less_width" fieldName="BillOffset__c" />
+                                <lightning:outputField variant="label-inline" class="less_width" fieldName="WaitOffset__c" />
+                                <lightning:outputField variant="label-inline" class="less_width" fieldName="StartOffset__c" />
+                                <lightning:outputField variant="label-inline" class="less_width" fieldName="Term__c" />
+                                <lightning:outputField variant="label-inline" fieldName="Full_Term__c" />
+                                <!-- <lightning:outputField variant="label-inline" class="pick_less_width" fieldName="Frequency__c" /> -->
+                                <lightning:outputField variant="label-inline" fieldName="Setup_Complete__c" />
+                            </div>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 padding_cls">
+                            <lightning:outputField fieldName="Description__c" />
+                            <lightning:outputField fieldName="BillType__c" />
+                            <lightning:outputField fieldName="DiscountEligible__c" />
+                            <lightning:outputField fieldName="DiscountCount__c" />
+                            <lightning:outputField fieldName="Underwriter_Rate_Code__c" />
+                            <div class="slds-grid">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning:outputField fieldName="IsBundle__c" />
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning:outputField fieldName="BundlePrice__c" />
+                                </div>
+                            </div>
+							<lightning:outputField class="comment_height" fieldName="Comment__c" /> 
+                            <lightning:outputField fieldName="ExternalID__c" />
+                             <div class="slds-form-element">
+                                         <label class="slds-form-element__label">Do not Use</label><lightning:helptext content="Select this checkbox for offers that were created in error or never used"/>
+                                        <div class="slds-form-element__control">
+                                            <lightning:outputField variant="label-hidden" fieldName="Do_not_Use__c"/>
+                                 </div>
+                            </div>
+                             
+                        </div>
+                    </div>               
+                </lightning:recordEditForm>  
+            </div>
+            <aura:set attribute="else">
+                <force:recordData aura:id="recordLoader"
+                                  recordId="{!v.recordId}"
+                                  targetFields="{!v.simpleRecord}"
+                                  fields="Name,Marketing_Product_Name__c, TC__c, Underwriter_Rate_Code__c,BillOffset__c,WaitOffset__c,StartOffset__c,Term__c,Full_Term__c,Frequency__c,Description__c,BillType__c,DiscountEligible__c,DiscountCount__c,IsBundle__c,BundlePrice__c,Comment__c, ProductCatalog_ID__c, Setup_Complete__c,Configuration_Type__c,Do_not_Use__c, ExternalID__c"
+                                  targetError="{!v.recordError}"
+                                  recordUpdated="{!c.handleRecordUpdated}"
+                                  mode="EDIT"
+                                  />
+                <div class="">
+                    <div>
+                        <lightning:recordEditForm recordId="{!v.recordId}" objectApiName="Product_Offer__c">
+                            <div class="slds-grid" style="padding-bottom:30px;">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <aura:if isTrue="{!v.isModalProductCatalogOpen}">
+                                        <c:ProductCatalog isModalOpen="{!v.isModalProductCatalogOpen}" isFromProductOffer="true" existingProductCatalogIdInModel="{!v.productOfferRecord.ProductCatalog_ID__c}" productCatalogName="{!v.productOfferRecord.Description__c}"/>
+                                        <aura:set attribute="else"> 
+                                            <aura:if isTrue="{! (v.productOfferRecord.ProductCatalog_ID__c == '' || empty(v.productOfferRecord.ProductCatalog_ID__c))}">
+                                                <lightning:input
+                                                                 aura:id="enter-search"
+                                                                 name="enter-search"
+                                                                 label="Product Catalog Name"
+                                                                 isLoading="{! v.issearching }"
+                                                                 type="search"
+                                                                 onfocus="{!c.productCatalogIdChange}"
+                                                                 value="{!v.productOfferRecord.ProductCatalog_ID__c}"
+                                                                 required="true"/>
+                                                    <aura:set attribute="else"> 
+                                                    <label class="slds-form-element__label"><abbr lightning-input_input="" title="required" class="slds-required">*</abbr>Product Catalog Name</label>
+                                                    <lightning:inputField value="{!v.productOfferRecord.ProductCatalog_ID__c}" rerender="" variant="label-hidden" fieldName="ProductCatalog_ID__c" onchange="{!c.productCatalogIdChange}" disabled="{!and(v.productOfferRecord.Setup_Complete__c, v.userInfo.Profile.Name != 'System Administrator')}"/> 
+                                                    
+                                                </aura:set>
+                                                                                        
+                                            </aura:if>  
+                                        </aura:set>
+                                    </aura:if>
+                                     <div class="slds-form-element">
+                                         <label class="slds-form-element__label"><abbr lightning-input_input="" title="required" class="slds-required">*</abbr>Product Catalog Search</label><lightning:helptext content="Search catalog name or 4 character code"/>
+                                        <div class="slds-form-element__control">
+                                            <lightning:inputField  onchange="{!c.isProValChange}" aura:id="productcatalogId" disabled="{!and(v.productOfferRecord.Setup_Complete__c,and( v.userInfo.Profile.Name != 'System Administrator',v.userInfo.Profile.Name != 'Product Manager'))}" variant="label-hidden" value="{!v.productOfferRecord.ProductCatalog_ID__c}" fieldName="ProductCatalog_ID__c"  required="true"/>
+                                        </div>
+                                    </div>
+                                    <div class="slds-form-element">
+                                        <label class="slds-form-element__label"><abbr lightning-input_input="" title="required" class="slds-required">*</abbr>Product Offer Name</label>
+                                        <div class="slds-form-element__control">
+                                            <lightning:inputField disabled="{!and(v.productOfferRecord.Setup_Complete__c,and( v.userInfo.Profile.Name != 'System Administrator',v.userInfo.Profile.Name != 'Product Manager'))}" variant="label-hidden" value="{!v.productOfferRecord.Name}" fieldName="Name"  required="true"/>
+                                        </div>
+                                    </div>
+									<div class="slds-form-element">
+                                            <label class="slds-form-element__label">Marketing Product Name</label>
+                                            <div class="slds-form-element__control">
+                                                <lightning:inputField variant="label-hidden" value="{!empty(v.productOfferRecord.ProductCatalog_ID__c)?'':v.productOfferRecord.Marketing_Product_Name__c}" fieldName="Marketing_Product_Name__c"/>
+                                            </div>
+                                        </div>
+                                    <div class="slds-form-element">
+                                        <label class="slds-form-element__label">T&amp;C</label>
+                                        <div class="slds-form-element__control">
+                                          <lightning:inputField variant="label-hidden" value="{!v.productOfferRecord.TC__c}" onchange="{!c.isTcRecordValue}" aura:id="tcrecordId" fieldName="TC__c" disabled="{!and(v.productOfferRecord.Setup_Complete__c, v.userInfo.Profile.Name != 'System Administrator')}"/>
+                                         </div>
+                                    </div>
+                                    <div class="slds-form-element">
+                                        <label class="slds-form-element__label">Underwriter Rate Code</label>
+                                        <div class="slds-form-element__control">
+                                            <lightning:inputField variant="label-hidden" value="{!v.productOfferRecord.Underwriter_Rate_Code__c}" fieldName="Underwriter_Rate_Code__c" />
+                                        </div>
+                                    </div>
+                                     <div class="slds-form-element">
+                                        <label class="slds-form-element__label"><abbr lightning-input_input="" class="slds-required">*</abbr>Configuration Type</label>
+                                        <div class="slds-form-element__control">
+                                            <lightning:inputField variant="label-hidden" required="true" onchange="{!c.isConfigurationTypeChange}" value="{!v.productOfferRecord.Configuration_Type__c}" 
+                                                                  aura:id="configurationTypeField" fieldName="Configuration_Type__c"/>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <lightning:inputField variant="label-inline" class="less_width" value="{!v.productOfferRecord.BillOffset__c}" fieldName="BillOffset__c" disabled="{!and(v.productOfferRecord.Setup_Complete__c, v.userInfo.Profile.Name != 'System Administrator')}"/>
+                                        <lightning:inputField variant="label-inline" class="less_width" value="{!v.productOfferRecord.WaitOffset__c}" fieldName="WaitOffset__c" disabled="{!and(v.productOfferRecord.Setup_Complete__c, v.userInfo.Profile.Name != 'System Administrator')}"/>
+                                        <lightning:inputField variant="label-inline" class="less_width" value="{!v.productOfferRecord.StartOffset__c}" fieldName="StartOffset__c" disabled="{!and(v.productOfferRecord.Setup_Complete__c, v.userInfo.Profile.Name != 'System Administrator')}"/>
+                                        <lightning:inputField variant="label-inline" class="less_width" value="{!v.productOfferRecord.Term__c}" fieldName="Term__c" disabled="{!and(v.productOfferRecord.Setup_Complete__c, v.userInfo.Profile.Name != 'System Administrator')}"/>
+                                        <lightning:inputField variant="label-inline" value="{!v.productOfferRecord.Full_Term__c}" fieldName="Full_Term__c" aura:id="isFullTermField" onchange="{!c.isFullTermChange}" disabled="{!and(v.productOfferRecord.Setup_Complete__c, and(v.userInfo.Profile.Name != 'System Administrator', and(v.userInfo.Profile.Name != 'Data Manager',v.userInfo.Profile.Name != 'Product Operations')))}"/>
+                                        <!-- <lightning:inputField variant="label-inline" class="pick_less_width" value="{!v.productOfferRecord.Frequency__c}" fieldName="Frequency__c" disabled="{!and(v.productOfferRecord.Setup_Complete__c, v.userInfo.Profile.Name != 'System Administrator')}"/> -->
+                                        <lightning:inputField variant="label-inline" value="{!v.productOfferRecord.Setup_Complete__c}" fieldName="Setup_Complete__c" disabled="{!v.userInfo.Profile.Name != 'System Administrator'}"/>
+                                    </div>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2 padding_cls">
+                                    <lightning:inputField value="{!empty(v.productOfferRecord.ProductCatalog_ID__c)?'':v.productOfferRecord.Description__c}" fieldName="Description__c" disabled="{!and(v.productOfferRecord.Setup_Complete__c, and(v.userInfo.Profile.Name != 'System Administrator',v.userInfo.Profile.Name != 'Product Manager'))}"/>
+                                    <lightning:inputField value="{!empty(v.productOfferRecord.ProductCatalog_ID__c)?'':v.productOfferRecord.BillType__c}" fieldName="BillType__c" aura:id="isBillTypeField" onchange="{!c.isBillTypeChange}" disabled="{!and(v.productOfferRecord.Setup_Complete__c, v.userInfo.Profile.Name != 'System Administrator') || (v.isBillTypeBoth)}"/>
+                                    <lightning:inputField fieldName="DiscountEligible__c" value="{!v.productOfferRecord.DiscountEligible__c}" aura:id="isDiscountEligibleField" onchange="{!c.isDiscountEligibleChange}" disabled="{!and(v.productOfferRecord.Setup_Complete__c, v.userInfo.Profile.Name != 'System Administrator')}"/>
+                                    <lightning:inputField fieldName="DiscountCount__c" value="{!v.productOfferRecord.DiscountCount__c}" aura:id="isDiscountCountField" onchange="{!c.isDiscountCountChange}" disabled="{!and(v.productOfferRecord.Setup_Complete__c, v.userInfo.Profile.Name != 'System Administrator')}"/>
+                                    <div class="slds-grid">
+                                        <div class="slds-col slds-size_1-of-2">
+                                            <lightning:inputField fieldName="IsBundle__c" value="{!v.productOfferRecord.IsBundle__c}" aura:id="isBundleField" onchange="{!c.isBundleChange}" disabled="{!and(v.productOfferRecord.Setup_Complete__c, v.userInfo.Profile.Name != 'System Administrator')}"/>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-2">
+                                            <!--<aura:if isTrue="{!v.productOfferRecord.IsBundle__c}">-->
+                                            <lightning:inputField variant="label-hidden" value="{!v.productOfferRecord.BundlePrice__c}" fieldName="BundlePrice__c" disabled="{! or(and(v.productOfferRecord.Setup_Complete__c, v.userInfo.Profile.Name != 'System Administrator'), or(v.productOfferRecord.IsBundle__c==false,empty(v.productOfferRecord.IsBundle__c)))}" />
+                                            <!--</aura:if>-->
+                                        </div>
+                                    </div>
+                                    <lightning:inputField value="{!v.productOfferRecord.Comment__c}" class="comment_height" fieldName="Comment__c" disabled="{! and(v.productOfferRecord.Setup_Complete__c,and( v.userInfo.Profile.Name != 'System Administrator', and(v.userInfo.Profile.Name != 'Product Manager', and(v.userInfo.Id != $Label.c.Caitlin_Chin, and(v.userInfo.Id != $Label.c.Stephen_Moy, and(v.userInfo.Id != $Label.c.Denise_Picon))))))}"/>
+                                    <lightning:inputField value="{!v.productOfferRecord.ExternalID__c}" class="comment_height" fieldName="ExternalID__c" disabled="{! and(v.productOfferRecord.Setup_Complete__c,and( v.userInfo.Profile.Name != 'System Administrator', and(v.userInfo.Profile.Name != 'Product Manager', and(v.userInfo.Id != $Label.c.Caitlin_Chin, and(v.userInfo.Id != $Label.c.Stephen_Moy, and(v.userInfo.Id != $Label.c.Denise_Picon))))))}"/>
+                                     
+                                     <div class="slds-form-element">
+                                         <label class="slds-form-element__label">Do not Use</label><lightning:helptext content="Select this checkbox for offers that were created in error or never used"/>
+                                        <div class="slds-form-element__control">
+									<lightning:inputField  variant="label-hidden" value="{!v.productOfferRecord.Do_not_Use__c}" fieldName="Do_not_Use__c" onchange="{! c.onDonotuseChange }"  disabled ="{!v.uservalidationFlag}"/>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>                                
+                            
+                        </lightning:recordEditForm>  
+                    </div>
+                    
+                </div>
+                <!--Modal/Popup Box Footer Starts here-->
+                <footer class="slds-modal__footer">
+                    <lightning:button variant="neutral"
+                                      label="Cancel"
+                                      onclick="{!c.closeModel}"/>
+                    <aura:if isTrue="{!v.userInfo.Profile.Name == 'System Administrator' || v.userInfo.Profile.Name == 'Product Manager' || v.userInfo.Profile.Name == 'Data Manager'}">
+                        <lightning:button variant="brand"
+                                          label="Save"
+                                          onclick="{!c.onlySave}"/>
+                        <lightning:button variant="brand"
+                                          label="Save And New"
+                                          onclick="{!c.saveAndNew}"/>
+                    </aura:if>
+                </footer>
+            </aura:set>
+        </aura:if>
+        </lightning:card>
+       <div >
+                <div class="slds-card__header slds-grid slds-theme_shade " Style="height: 50px;">
+                    <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                        <div class="slds-media__figure">
+                            <span class="slds-icon_container " title="description of icon when needed">
+                                <lightning:icon iconName="custom:custom33" size="small" alternativeText="Price_Entry__c"/><B> Price Entries</B>
+                            </span>
+                        </div>
+                        <div class="slds-media__body">
+                            
+                        </div>
+                        <div class=" slds-size_1-of-3 slds-text-align_right">             
+               <div class="slds-col slds-size_12-of-12" style="text-align: right;">
+                    <lightning:recordEditForm recordId="{!v.recordId}" objectApiName="Price_Entry__c"> 
+                        <div>
+                            <aura:if isTrue="{!v.userInfo.Profile.Name == 'System Administrator' || v.userInfo.Profile.Name == 'Pricing Manager' || v.userInfo.Profile.Name == 'Data Manager'}">
+                                <lightning:button class="btn1"
+                                                  variant="neutral"
+                                                  label="Add New Row"
+                                                  onclick="{!c.addNewRow}"/>
+                            </aura:if>
+                            
+                            <aura:if isTrue="{!v.ShowModule}">      
+                                <div class="demo-only" style="height: 640px;text-align: left;">
+                                    <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                                        <div class="slds-modal__container">
+                                            <header class="slds-modal__header">
+                                                <lightning:buttonIcon iconName="utility:close"
+                                                                      onclick="{! c.closeModel }"
+                                                                      alternativeText="close"
+                                                                      variant="bare"
+                                                                      class="slds-button slds-modal__close slds-button--icon-inverse"/>
+                                                
+                                                <lightning:buttonIcon iconName="utility:close" variant="bare" onclick="{! c.HideMe }" 
+                                                                      alternativeText="Close" class="slds-modal__close" />
+                                                
+                                                <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate"></h2>
+                                            </header>
+                                            <lightning:recordEditForm objectApiName="Price_Entry__c" recordId="{!v.selectedRecordId}" onerror="{!c.handleError}" onsuccess="{!c.handleSuccess}" onsubmit="{!c.handleOnSubmit}" aura:id="recordCreateForm">
+                                            <div class="slds-modal__content slds-p-around_medium new_modal" style="overflow: initial;" id="modal-content-id-1">
+                                                <div class="slds-grid">
+                                                        <div class="slds-col slds-size_1-of-2">
+                                                            <div class="slds-grid" style="display:none;">
+                                                                <div class="slds-col slds-p-horizontal_medium">
+                                                                    <lightning:inputField fieldName="ProductCatalog_ID__c" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="slds-grid">
+                                                                <div class="slds-col slds-size_1-of-1 padding_cls">
+                                                                    <aura:if isTrue="{!v.selectedRecordId != ''}">
+                                                                        <lightning:inputField fieldName="Channel__c" disabled="true" />
+                                                                       <aura:set attribute="else">
+                                                                           <lightning:combobox name="progress" variant="label-inline" class="pick_less_width" label="Channel" value="{!v.channelValue}" placeholder="" options="{!v.filterOptions}" />
+                                                                        </aura:set>
+                                                                    </aura:if>
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                            <div class="slds-grid">
+                                                                <div class="slds-col slds-size_1-of-2 padding_cls">
+                                                                    <label class="slds-form-element__label">Condition</label>
+                                                                    <lightning:inputField disabled="{!v.selectedRecordId != ''}" 
+                                                                                          fieldName="ConditionOpp__c" 
+                                                                                          variant="label-hidden" 
+                                                                                          onchange="{! c.handleCondition}"/>
+                                                                </div>
+                                                                <div class="slds-col  slds-size_1-of-2 padding_cls">
+                                                                     <label class="slds-form-element__label">          </label>
+                                                                    <lightning:inputField disabled="{!v.selectedRecordId != ''}" fieldName="Condition_Value__c" variant="label-hidden"/>
+                                                                </div>
+                                                            </div>
+                                                            <div class="slds-grid">
+                                                                <div class="slds-col slds-size_1-of-1 padding_cls">
+                                                                    <div class="slds-form-element">
+                                                                        <label class="slds-form-element__label">Base Price</label>
+                                                                        <lightning:inputField disabled="{!v.selectedRecordId != ''}" fieldName="Price__c" variant="label-hidden"/>
+                                                                    </div>  
+                                                                </div>
+                                                            </div>
+                                                            <div class="slds-grid">
+                                                                <div class="slds-col slds-form-element">
+                                                                    <lightning:inputField fieldName="ChangeTo_ID__c" onchange="{!c.getChangeToCode}" />
+                                                                </div>
+                                                            </div>
+                                                             <div class="slds-grid">
+                                                                <div class="slds-col slds-form-element">
+                                                                    <lightning:inputField fieldName="Notes__c" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="slds-col slds-size_1-of-2">
+                                                            <div class="top_bottom_padding_cls">
+                                                                Available for
+                                                            </div>
+                                                                <lightning:inputField fieldName="NewSell__c" />
+                                                                <lightning:inputField fieldName="Renew__c" value="{! v.isRenew}" />
+                                                                <lightning:inputField fieldName="Marketing__c" disabled="true"/>
+                                                                <div class="slds-grid">
+                                                                    <div class="slds-col slds-size_1-of-2" style="padding-left:0px;">
+                                                                        <lightning:inputField fieldName="StartDate__c" />
+                                                                    </div>
+                                                                    <div class="slds-col slds-size_1-of-2">
+                                                                        <lightning:inputField fieldName="EndDate__c" />
+                                                                    </div>
+                                                                </div>
+                                                                <lightning:input label="Change To Code" value="{!v.changeToCode}" disabled="true"/>
+                                                        </div>
+                                                    </div>
+	                                        </div>
+                                            <footer class="slds-modal__footer">
+                                                <lightning:button type="button" variant="neutral" label="Cancel" onclick="{! c.HideMe }"/>
+                                                <lightning:button type="submit" variant="brand" label="Save" onclick="{! c.saveRecord }"/>
+                                            </footer>
+                                            </lightning:recordEditForm>
+                                        </div>
+                                    </section>
+                                    <div class="slds-backdrop slds-backdrop_open"></div>
+                                </div>  
+                            </aura:if> 
+                            
+                           
+                        </div>
+                    </lightning:recordEditForm>
+                </div>
+                
+            </div>
+          </header>
+                    <br/>
+                </div>
+            <!--<div style="background-color:skyblue;color:black;">	
+                <h3><b>Search Filter Section</b></h3>	
+            </div>	-->
+           <div class="slds-grid">	
+			 <div class="slds-col slds-size_1-of-4 padding_cls " style="padding-left: 50px" >	
+                <lightning:combobox name="progress"  label="Channel" value="{!v.channelFilter}" placeholder="{!v.channelFilterPlaceholder}" options="{!v.filterOptions}" onchange="{! c.onChangeChannelFilter }"/>	
+            </div>
+            
+            <div class = "slds-col slds-size_1-of-4 padding_cls" style="padding-left: 50px">	
+                <lightning:input type="date" value="{!v.sDate}" label="Start Date" dateStyle="short"/>	
+            </div>	
+            <div class = "slds-col slds-size_1-of-4 padding_cls" style="padding-left: 50px">	
+                <lightning:input type="date" value="{!v.eDate}" label="End Date" dateStyle="short" />	
+            </div>	
+                <div class = "slds-col slds-size_1-of-3 sauto-width" style="padding-left: 50px;padding-top: 24px;">	
+                     <lightning:button class="slds-button " label="Filter" onclick="{!c.filter}"/> 	
+                     <lightning:button class="slds-button " label="Reset" onclick="{!c.reset}"/>	
+                </div>	
+            </div>	
+            <br/>	
+            <div class="slds-p-around_small slds-grid slds-grid_align-spread slds-grid_vertical-align-start">	
+            <div>	
+                <lightning:select	
+                                  label="Number of records on page:"	
+                                  value="{! v.pageSize }"	
+                                  onchange="{! c.onPageSizeChange }">	
+                    <aura:iteration items="{! v.pageSizeOptions }" var="opt">	
+                        <option text="{! opt }"></option>	
+                    </aura:iteration>	
+                </lightning:select>	
+            </div>	
+            <div style="padding-left: 50px;padding-top: 24px;">	
+                <lightning:button	
+                                  label="First"	
+                                  iconName="utility:left"	
+                                  iconPosition="left"	
+                                  onclick="{! c.onFirst }"	
+                                  disabled="{! v.currentPageNumber == 1 }" />	
+                <lightning:button	
+                                  label="Previous"	
+                                  iconName="utility:chevronleft"	
+                                  iconPosition="left"	
+                                  onclick="{! c.onPrev }"	
+                                  disabled="{! v.currentPageNumber == 1 }" />	
+                <span class="slds-var-p-horizontal_x-small">	
+                    Page {! (v.currentPageNumber) } of {! (v.totalPages) }	
+                </span>	
+                <span class="slds-var-p-horizontal_x-small">	
+                    Number of records: {! (v.totalRecords) }	
+                </span>	
+                <lightning:button	
+                                  label="Next"	
+                                  iconName="utility:chevronright"	
+                                  iconPosition="right"	
+                                  onclick="{! c.onNext }"	
+                                  disabled="{! v.currentPageNumber == v.totalPages }" />	
+                <lightning:button	
+                                  label="Last"	
+                                  iconName="utility:right"	
+                                  iconPosition="right"	
+                                  onclick="{! c.onLast }"        	
+                                  disabled="{! v.currentPageNumber == v.totalPages }" />	
+            </div>	
+        </div>	
+            <lightning:datatable aura:id="Table"	
+                                 columns="{! v.columns }"	
+                                 data="{! v.tableData}"	
+                                 keyField="Id"	
+                                 onsave="{!c.handleSave}"	
+                                 sortedBy="{!v.sortBy}"	
+                                 sortedDirection="{!v.sortDirection}"	
+                                 onsort="{!c.handleSort}"
+                                 onrowaction="{! c.handleRowAction }"
+                                 class="slds-table_header-fixed_container slds-scrollable_x slds-border_top"	
+                                 />	
+            	
+        </div>	
+        	
+    <lightning:card>	
+        <aura:if isTrue="{!v.isDuplicate}">	
+            <div style="height:24rem; width:40rem">	
+                <section role="alertdialog" tabindex="0" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">	
+                  <div class="slds-modal__container" style="width: 70%;">	
+                    <header class="slds-modal__header slds-theme_error slds-theme_alert-texture">	
+                      <h2 class="slds-text-heading_medium" id="prompt-heading-id">Product Offer already exists</h2>	
+                    </header>	
+                    <div class="slds-modal__content slds-p-around_medium" id="prompt-message-wrapper">	
+                      <p>Product Offer already exists. Do you want to continue?</p>	
+                      <p>Duplicates:</p>	
+                      <table class="slds-scrollable slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered bordered_table slds-table_striped slds-wrap">	
+                        <thead>	
+                            <tr>	
+                                <th class="center_align slds-truncate"> Product Offer Name </th>	
+                                <th class="center_align slds-truncate">Catalog Name</th>	
+                                <th class="center_align slds-truncate">Catalog Code</th>	
+                                <th class="center_align slds-truncate">T &amp; C</th>	
+                            </tr>	
+                        </thead>	
+                        <tbody>	
+                            <aura:iteration items="{!v.duplicates}" var="duplicate">	
+                                <tr>	
+                                    <td>	
+                                        <a href="{!'/one/one.app?#/sObject/'+ duplicate.Id + '/view'}" target="_blank">{! duplicate.Name }</a>	
+                                    </td>	
+                                    <td>	
+                                        {! duplicate.ProductCatalog_ID__r.Name }	
+                                    </td>	
+                                    <td>	
+                                        {! duplicate.ProductCatalog_ID__r.Product_Catalog_Code__c }	
+                                    </td>	
+                                    <td>	
+                                        {! duplicate.TC__r.Name }	
+                                    </td>	
+                                </tr>	
+                            </aura:iteration>	
+                        </tbody>	
+                      </table>	
+                    </div>	
+                    <footer class="slds-modal__footer slds-theme_default">	
+                      <lightning:button variant="brand"	
+                                          label="Yes"	
+                                          onclick="{!c.saveNewProductOffer}"/>	
+                      <lightning:button variant="neutral"	
+                                          label="No"	
+                                          onclick="{!c.closeDuplicateModal}"/>	
+                    </footer>	
+                  </div>	
+                </section>	
+                <div class="slds-backdrop slds-backdrop_open"></div>	
+              </div>	
+        </aura:if>	
+    </lightning:card>	
+    <lightning:card>
+
+        <aura:if isTrue="{!v.isshowAlertModel}">
+            <div style="height:24rem; width:40rem">
+                <section role="alertdialog" tabindex="0" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+                  <div class="slds-modal__container" style="width: 70%;">
+                    <header class="slds-modal__header slds-theme_warning slds-theme_alert-texture">
+                      <h2 class="slds-text-heading_medium" id="prompt-heading-id">Warning Message</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="prompt-message-wrapper">
+                      <p>This product is available for sale. Are you sure you want to proceed?</p>
+                    </div>
+                    <footer class="slds-modal__footer slds-theme_default">
+                      <lightning:button variant="brand"
+                                          label="Yes"
+                                          onclick="{!c.donotusetoggle}"/>
+                      <lightning:button variant="neutral"
+                                          label="No"
+                                          onclick="{!c.closeisShowAlertModel}"/>
+                    </footer>
+                  </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+              </div>
+        </aura:if>
+    </lightning:card>
+
+</aura:component>

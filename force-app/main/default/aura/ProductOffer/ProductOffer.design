@@ -1,0 +1,3 @@
+<design:component>
+	  <design:attribute name="isView" label="is From View" description="" />
+</design:component>

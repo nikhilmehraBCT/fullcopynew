@@ -1,0 +1,18 @@
+.THIS .padding_cls{
+	padding: 0px 15px;
+}
+.THIS .center_align{
+    text-align: center;
+}
+.THIS .bordered_table{
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+}
+.THIS .top_bottom_padding_cls{
+    padding: 10px 0px;
+}
+.THIS .productCatalogName{
+   white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
