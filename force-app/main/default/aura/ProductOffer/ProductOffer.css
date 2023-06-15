@@ -1,0 +1,34 @@
+.THIS .comment_height textarea{
+    height: 185px;
+}
+.THIS .less_width input{
+    width: 70px;
+}
+.THIS {
+    background: #fff;
+    padding: 21px;
+    border-radius: 10px;
+}
+.THIS .padding_cls{
+    padding-left: 10px;
+}
+
+.THIS .btn1{
+    margin-right: 60px;
+    margin-top: 7px;
+}
+
+.THIS .pick_less_width{
+    margin-top: 5px;
+}
+.THIS .slds-form-element__label{
+       text-align: left;
+}
+.THIS .slds-grid_align-end
+{
+    justify-content: center !important; 
+}
+.THIS .slds.th__action
+{
+    justify-content: center !important; 
+}

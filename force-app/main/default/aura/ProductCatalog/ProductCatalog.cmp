@@ -1,0 +1,349 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId,lightning:actionOverride" access="global" controller="ProductCatalogController" >
+    <aura:attribute name="productTypeList" type="Product_Type_Element__c[]"/>
+    <aura:attribute name="partnerTerritoriesList" type="Product_Type_Element__c[]"/> 
+    <aura:attribute name="isModalOpen" type="boolean" default="true"/>
+    <aura:attribute name="productCode" type="String" default=""/>
+    <aura:attribute name="producttype" type="String" default=""/>
+    <aura:attribute name="description" type="String" default=""/>
+    <aura:attribute name="producttyperef" type="String" default=""/>
+    <aura:attribute name="partnerCode" type="String" default=""/>
+    <aura:attribute name="searchText" type="String" default=""/>
+    <aura:attribute name="territoryType" type="String" default=""/>
+    <aura:attribute name="territoryNameWith" type="String" default="Start With"/>
+    <aura:attribute name="productCatalogCode" type="String" default=""/>
+    <aura:attribute name="productCatalogName" type="String" default=""/>
+    <aura:attribute name="territoryNameKeyword" type="String" default=""/>
+    <aura:attribute name="existingProductTypeId" type="String" default=""/>
+    <aura:attribute name="existingProductCatalogId" type="String" default=""/>
+    <aura:attribute name="existingProductCatalogIdInModel" type="String" default=""/>
+    <aura:attribute name="recordId" type="String" default=""/>
+    <aura:attribute name="isSpinnerShow" type="Boolean" default="false"/>
+    <aura:attribute name="isFromProductOffer" type="Boolean" default="false"/>
+    <aura:attribute name="isSaveButtonDisabled" type="Boolean" default="true"/> 
+    <aura:attribute name="uflag" type="Boolean" default="false"/>
+    <aura:attribute name="productCategoryID" type="Integer" default=""/>
+    <aura:attribute name="productsubcategoryID" type="String" default=""/>
+    <aura:attribute name="hsPlanIcon" type="String" default=""/>
+    <aura:attribute name="banner" type="String" default=""/>
+    <aura:attribute name="featuredImage" type="String" default=""/>
+    <aura:attribute name="featuredFlag" type="boolean" default=""/>
+    <aura:attribute name="interactiveHouse" type="String" default=""/>
+    <aura:attribute name="digitalSequence" type="Integer" default=""/>
+    <aura:attribute name="alternateCatalogID" type="String" default=""/>
+    <aura:attribute name="Exclusive" type="boolean" default=""/> 
+    <aura:attribute name="saveAndNew" type="boolean" default="false"/>
+    <aura:attribute name="saveNewOffer" type="boolean" default="false"/>
+    <aura:attribute name="isSaveNewButtonDisabled" type="Boolean" default="true"/>
+    <aura:attribute name="record" type="Object"/>
+    <aura:attribute name="simpleRecord" type="Object"/>
+    <aura:attribute name="recordError" type="String"/>
+    
+    <aura:registerEvent name="setBillTypeName" type="c:setBillType"/>
+    
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    <aura:handler name="change" value="{!v.partnerCode}" action="{!c.searchRec}"/>
+    
+    <force:recordData aura:id="recordLoader"
+                      recordId="{!v.recordId}"
+                      targetFields="{!v.simpleRecord}"
+                      fields="Name, Description__c, ProductCode__c, InteractiveHouse__c, Alternate_Catalog_Id__c,Featured_Flag__c, FeaturedImage__c, Product_Category_ID__c, Banner__c, productsubcategoryID__c, HS_Plan_Icon__c, ProductType_ID__c, ProductType_ID__r.Name, ProductType_ID__r.Product_Type_Reference__c, ProductType_ID__r.ProductCode__c, ProductType_ID__r.Description__c, PartnerTerritory_ID__r.Partner_ID__c, PartnerTerritory_ID__r.Partner_ID__r.Name, PartnerTerritory_ID__r.Territory_ID__r.Name,PartnerTerritory_ID__r.Name,Digital_Sequence__c,Exclusive__c,Product_Catalog_Code__c,PartnerTerritory_ID__r.Partner_Territory_Code__c "
+                      targetError="{!v.recordError}"
+                      recordUpdated="{!c.handleRecordUpdated}"
+                      />
+    <div class="slds-m-around_xx-large">
+        <!--Use aura:if tag to display/hide popup based on isModalOpen value-->  
+        <aura:if isTrue="{!v.isModalOpen}">          
+            <!-- Modal/Popup Box starts here-->
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-modal_large slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <!-- Modal/Popup Box Header Starts here-->
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close"
+                                              onclick="{! c.closeModel }"
+                                              alternativeText="close"
+                                              variant="bare-inverse"
+                                              class="slds-modal__close"/>
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Product Catalog</h2>
+                    </header>
+                    <!--Modal/Popup Box Body Starts here-->
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <aura:if isTrue="{!v.isSpinnerShow}">
+                            <div class="exampleHolder">
+                                <lightning:spinner variant="brand" size="large" />
+                            </div>
+                        </aura:if>
+                        <div>
+                            <div class="slds-grid">
+                                <div class="slds-col slds-size_4-of-6 slds-table--header-fixed_container">
+                                    <div class="padding_cls slds-scrollable_y" style="padding-bottom:30px;height: 300px;">
+                                        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered bordered_table slds-table_striped slds-table--header-fixed">
+                                            <thead>
+                                                <tr>
+                                                    <th class="center_align"><div class="slds-cell-fixed"> Select </div></th>
+                                                    <th class="center_align" style="width: 24%;min-width: 24%;"><div class="slds-cell-fixed"> Product Type Element</div></th>
+                                                    <th class="center_align"><div class="slds-cell-fixed"> Description</div></th>
+                                                    <th class="center_align"><div class="slds-cell-fixed"> Grouping</div></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <aura:iteration items="{!v.productTypeList}" var="Pro">
+                                                    <tr>
+                                                        <td>
+                                                            <lightning:input type="checkbox" checked="{!Pro.isChecked}" label="" disabled="{!v.recordId != ''}"  onchange="{!c.checkboxSelect}" />
+                                                        </td>
+                                                        <td>
+                                                            {!Pro.record.ElementCode__c}
+                                                        </td>
+                                                        <td>
+                                                            {!Pro.record.Description__c}
+                                                        </td>
+                                                        <td>
+                                                            {!Pro.record.Grouping__c}
+                                                        </td>
+                                                    </tr>
+                                                </aura:iteration>
+                                            </tbody>
+                                        </table>  
+                                    </div>
+                                </div>
+                                <div class="slds-col slds-size_3-of-6">
+                                    <div class="slds-grid">
+                                        <div class="slds-col slds-size_1-of-3 padding_cls">
+                                            <lightning:textarea type="text" value="{!v.producttype}" name="input1" label="Product Type" disabled="true" />
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-3 padding_cls">
+                                            <lightning:textarea type="text" value="{!v.description}" name="input1" label="Description" disabled="true" />  
+                                        </div>
+                                    </div>
+                                    <div class="slds-grid">
+                                        <div class="slds-col slds-size_1-of-3 padding_cls">
+                                            <lightning:textarea type="text" value="{!v.productCode}" label="Product Type Code" disabled="true" />
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-3 padding_cls">
+                                            <lightning:textarea type="text" value="{!v.producttyperef}" label="Product Type Reference" disabled="true" />  
+                                        </div>
+                                    </div>
+                                    <lightning:recordEditForm class="slds-col slds-size_2-of-3 padding_cls" objectApiName="Partner_Territory__c">
+                                        <div >
+                                            <lightning:inputField required="true" onchange="{!c.partnerCodeChange}" value="{!v.partnerCode}" fieldName="Partner_ID__c" disabled="{!v.recordId != ''}"/>
+                                        </div>
+                                    </lightning:recordEditForm>
+                                    <lightning:recordEditForm objectApiName="Territory__c">
+                                        <div class="slds-grid">
+                                            <div class="slds-col slds-size_1-of-3 padding_cls">
+                                                <lightning:select onchange="{!c.searchRec}" name="select" value="{!v.territoryType}" label="Territory Type" disabled="{!v.recordId != ''}">
+                                                    <option value="">--None--</option>    
+                                                    <option value="ZIP Code">ZIP Code</option>
+                                                    <option value="Postal Code">Postal Code</option>
+                                                    <option value="State">State</option>
+                                                </lightning:select>
+                                                <!-- <lightning:inputField onchange="{!c.searchRec}" value="{!v.territoryType}" variant="label-hidden" fieldName="Type__c" disabled="{!v.recordId != ''}"/> -->
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-3 padding_cls">
+                                                <lightning:select onchange="{!c.searchRec}" name="select" value="{!v.territoryNameWith}" label="Territory Name" disabled="{!v.recordId != ''}">
+                                                    <option value="Start With">Start With</option>
+                                                    <option value="End With">End With</option>
+                                                </lightning:select>
+                                            </div>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-3 padding_cls" >
+                                            <lightning:input onchange="{!c.searchRec}" type="text"  value="{!v.territoryNameKeyword}" placeholder="keyword" disabled="{!v.recordId != ''}"/>
+                                        </div>
+                                    </lightning:recordEditForm>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-grid slds-gutters">
+                            <div class="slds-col slds-size_2-of-3">
+                                <aura:if isTrue="{!v.recordId == ''}">
+                                    <div class="slds-grid slds-gutters">
+                                        <div class="slds-col slds-p-top_large">
+                                            <lightning:button variant="neutral"
+                                                              label="Clear All"
+                                                              onclick="{! c.clearAll }" />
+                                        </div>
+                                        <div class="slds-col slds-p-top_xx-small" >
+                                            <lightning:input type="text" value="{!v.searchText}" placeholder="Search Product Type Name or Code…"/>
+                                        </div>
+                                        <div class="slds-col slds-p-top_large">
+                                            <lightning:button variant="neutral"
+                                                              label="Search"
+                                                              disabled="{!v.searchText == ''}"
+                                                              onclick="{! c.searchProductType }"/>
+                                        </div>
+                                    </div>
+                                </aura:if>
+                            </div>
+                            <div class="slds-col--padded">
+                                <!-- <lightning:button variant="brand-outline"
+                                                  label="Search"
+                                                  onclick="{!c.searchRec}"
+                                                  disabled="{!or(v.recordId!='', v.productCode=='')}"/> -->
+                            </div>
+                            
+                        </div>
+                        <div class="top_bottom_padding_cls">
+                            Partner - Territory
+                        </div>
+                        <div class="top_bottom_padding_cls">
+                            <aura:if isTrue="{!v.partnerTerritoriesList.length > 0}">
+                                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered bordered_table slds-table_striped">
+                                    <thead>
+                                        <tr>
+                                            <th> Select </th>
+                                            <th class="center_align">Code</th>
+                                            <th class="center_align">Territory</th>
+                                            <th class="center_align">Partner</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <aura:iteration items="{!v.partnerTerritoriesList}" var="partnerTerritoryRecord">
+                                            <tr>
+                                                <td>
+                                                    <fieldset class="slds-form-element">
+                                                        <div class="slds-form-element__control">
+                                                            <span class="slds-radio">
+                                                                <input type="radio" id="{!_index+1}" value="{!'radio-'+_index}" name="options" checked="{!partnerTerritoryRecord.isChecked}" disabled="{!v.recordId != ''}" onchange="{!c.searchexistingProductCatalogRec}" />
+                                                                <label class="slds-radio__label" for="{!_index+1}">
+                                                                    <span class="slds-radio_faux"></span>
+                                                                    <span class="slds-form-element__label"></span>
+                                                                </label>
+                                                            </span>
+                                                        </div>
+                                                    </fieldset>
+                                                </td>
+                                                <td>
+                                                    <center>{!partnerTerritoryRecord.record.Name}</center>
+                                                </td>
+                                                <td>
+                                                    <center>{!partnerTerritoryRecord.record.Territory_ID__r.Name}</center>
+                                                </td>
+                                                <td>
+                                                    <center>{!partnerTerritoryRecord.record.Partner_ID__r.Name}</center>
+                                                </td>
+                                            </tr>
+                                        </aura:iteration>
+                                    </tbody>
+                                </table>
+                                <aura:set attribute="else">
+                                    <center>No Records found.</center>
+                                </aura:set>
+                            </aura:if>   
+                        </div>
+                        <div class="slds-grid">
+                            <div class="slds-col slds-size_1-of-3 padding_cls">
+                                <!-- IN#00219628 start-->
+                                <lightning:textarea type="text" disabled="{!v.isFromProductOffer}" value="{!v.productCatalogName}" name="input1" label="Product Catalog Name" maxlength="80" /> 
+                                <span class="floatToRight">{!80-v.productCatalogName.length} characters remaining</span>
+                                <!-- IN#00219628 End-->
+                            </div>
+                            <div class="slds-col slds-size_1-of-3 padding_cls">
+                                <aura:if isTrue="{!v.uflag}">
+                                <lightning:textarea type="text"  value="{!v.productsubcategoryID}" name="input1" label="Product Subcategory ID"  /> 
+                                <!--<lightning:textarea type="text" value="{!v.productCatalogCode}" disabled="true" name="input1" label="Product Catalog Code" />-->
+                                </aura:if>
+                                </div>
+                            <div class="slds-col slds-size_1-of-3 padding_cls">
+                                <aura:if isTrue="{!v.uflag}">
+                                <lightning:textarea type="text"  value="{!v.productCategoryID}" name="input1" label="Product Category ID"  /> 
+                                </aura:if>
+                                </div>
+                            
+                        </div>
+                            
+                        <div class="slds-grid">
+                            <div class="slds-col slds-size_1-of-3 padding_cls">
+                                <aura:if isTrue="{!v.uflag}">
+                                    <lightning:textarea type="text"  value="{!v.hsPlanIcon}" name="input1" label="HS Plan Icon"  /> 
+                                </aura:if>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3 padding_cls">
+                                <aura:if isTrue="{!v.uflag}">
+                                    <lightning:textarea type="text"  value="{!v.banner}" name="input1" label="Banner"  /> 
+                                </aura:if>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3 padding_cls">
+                                <aura:if isTrue="{!v.uflag}">
+                                    <lightning:textarea type="text"  value="{!v.featuredImage}" name="input1" label="Featured Image"  /> 
+                                </aura:if>
+                            </div>
+                        </div>
+                        
+                        <div class="slds-grid">
+                            
+                            <!--<div class="slds-col slds-size_1-of-3 padding_cls">
+                                <aura:if isTrue="{!v.uflag}">
+                                    <lightning:textarea type="text"  value="{!v.interactiveHouse}" name="input1" label="Interactive House"  /> 
+                                </aura:if>
+                            </div>-->
+                             <div class="slds-col slds-size_1-of-3 padding_cls">
+                                <aura:if isTrue="{!v.uflag}">
+                                    <lightning:textarea type="text"  value="{!v.digitalSequence}" name="input1" label="Digital Sequence"  /> 
+                                </aura:if>
+                            </div>
+                              <div class="slds-col slds-size_1-of-3 padding_cls">
+                                <aura:if isTrue="{!v.uflag}">
+                                    <lightning:textarea type="text"  value="{!v.alternateCatalogID}" name="input1" label="Alternate Catalog ID"  /> 
+                                </aura:if>
+                            </div>
+                            <lightning:recordEditForm class="slds-col slds-size_1-of-3 padding_cls" objectApiName="Product_Catalog__c">
+                                        <div >
+                                            <aura:if isTrue="{!v.uflag}">
+                                            <lightning:inputField value="{!v.interactiveHouse}" fieldName="InteractiveHouse__c" onchange="{! c.handleInteractiveHouseChange }" />
+                                            </aura:if>
+                                            </div>
+                                    </lightning:recordEditForm>
+                        </div>
+                        
+                            
+                        <div class="slds-grid">
+                          
+                             <div class="slds-col slds-size_1-of-3 padding_cls">
+                                 <aura:if isTrue="{!v.uflag}">
+                                 <lightning:input type="checkbox" label="Exclusive" name="Exclusive"  checked="{!v.Exclusive}" onchange="{! c.handleChange }"/>
+                                 </aura:if>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3 padding_cls">
+                                <aura:if isTrue="{!v.uflag}">
+                                     <lightning:input type="checkbox" label="Featured Flag" name="Featured Flag"  checked="{!v.featuredFlag}" onchange="{! c.handlefeatureFlagChange }" />
+                                    <!--<lightning:textarea type="text"  value="{!v.featuredFlag}" name="input1" label="Featured Flag"  /> -->
+                                </aura:if>
+                            </div>
+                            
+                        </div>
+                        <div class="slds-col slds-size_1-of-3 padding_cls" style="text-align: right; padding-top: 50px;">
+                                <aura:if isTrue="{!not(v.isFromProductOffer)}">
+                                    <lightning:button variant="brand"
+                                                      label="Save"
+                                                      onclick="{!c.saveRec}"
+                                                      disabled="{!v.isSaveButtonDisabled}"/>
+                                    <lightning:button variant="brand"
+                                                      label="Save and New"
+                                                      onclick="{!c.saveandNewRec}"
+                                                      disabled="{!v.isSaveNewButtonDisabled}"/> 
+                                    <lightning:button variant="brand"
+                                                      label="Save and New Offer"
+                                                      onclick="{!c.saveandNewOffer}"
+                                                      disabled="{!v.isSaveNewButtonDisabled}"/> 
+                                </aura:if>
+                            </div>
+                    </div>
+                    <!--Modal/Popup Box Footer Starts here-->
+                    <footer class="slds-modal__footer">
+                        <aura:if isTrue="{!v.isFromProductOffer}">
+                            <lightning:button variant="brand"
+                                              label="Ok"
+                                              onclick="{!c.selectRecord}"  disabled="{!empty(v.productCatalogName)}"/>
+                            <lightning:button variant="neutral"
+                                              label="Cancel"
+                                              onclick="{!c.closeModel}"/>
+                        </aura:if>
+                    </footer>
+                </div>
+                
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+    </div>
+</aura:component>

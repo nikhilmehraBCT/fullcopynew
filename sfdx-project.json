@@ -1,0 +1,16 @@
+{
+  "packageDirectories": [
+    {
+      "path": "force-app",
+      "default": true
+    }
+  ],
+<<<<<<< HEAD
+  "name": "fullcopy",
+=======
+  "name": "sfdevtest2",
+>>>>>>> sfdevtest2/master
+  "namespace": "",
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "sourceApiVersion": "57.0"
+}
